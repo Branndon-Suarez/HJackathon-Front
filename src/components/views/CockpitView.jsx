@@ -15,7 +15,7 @@ import {
 
 // 1. COMPONENTE: MEDIDOR RADIAL CENTRADO
 const FitGauge = ({ percentage, label, sublabel }) => (
-  <div className="flex flex-col items-center text-center gap-3 group">
+  <div className="flex flex-col items-center text-center gap-3  group">
     <div className="relative w-16 h-16 shrink-0">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
         <path className="stroke-white/5 fill-none" strokeWidth="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
