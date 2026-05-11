@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { 
-  LayoutGrid, Stethoscope, Target, 
-  ClipboardList, MessageSquare, ChevronLeft, ChevronRight 
+import { useState } from 'react';
+import {
+  LayoutGrid, Stethoscope, Target,
+  ClipboardList, ChevronLeft, ChevronRight, LogOut
 } from 'lucide-react';
 import { cn } from '../../services/utils';
 
@@ -9,11 +9,10 @@ const menuItems = [
   { id: 'COCKPIT', label: 'Panel', icon: LayoutGrid },
   { id: 'INTAKE', label: 'Diagnóstico', icon: Stethoscope },
   { id: 'PLAYBOOK', label: 'Estrategia', icon: Target },
-  { id: 'IMPLEMENTATION', label: 'Tareas', icon: ClipboardList },
-  { id: 'SCRIPTS', label: 'Scripts', icon: MessageSquare },
+  { id: 'IMPLEMENTATION', label: 'ToDos', icon: ClipboardList },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -28,7 +27,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             <span className="font-bold text-xl tracking-tighter text-white">RiBuzz</span>
           </div>
         )}
-        <button 
+        <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 hover:bg-white/5 rounded-lg text-on-surface-variant"
         >
@@ -43,8 +42,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             onClick={() => setActiveTab(item.id)}
             className={cn(
               "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group",
-              activeTab === item.id 
-                ? "bg-[#E625FF]/10 text-[#E625FF] border-l-4 border-[#E625FF]" 
+              activeTab === item.id
+                ? "bg-[#E625FF]/10 text-[#E625FF] border-l-4 border-[#E625FF]"
                 : "text-gray-400 hover:text-[#0FEFFD] hover:bg-white/5"
             )}
           >
@@ -55,6 +54,20 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           </button>
         ))}
       </nav>
+
+      {/* Botón de Cerrar Sesión */}
+      <div className="p-4 border-t border-white/5">
+        <button
+          onClick={onLogout}
+          className={cn(
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+            "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+          )}
+        >
+          <LogOut size={22} />
+          {!isCollapsed && <span className="font-medium">Cerrar Sesión</span>}
+        </button>
+      </div>
     </aside>
   );
 }
