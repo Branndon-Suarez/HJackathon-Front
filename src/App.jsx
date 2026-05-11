@@ -11,6 +11,7 @@ import ImplementationView from './components/views/ImplementationView'
 import CockpitView from './components/views/CockpitView'
 import LoginView from './components/views/LoginView'
 import LandingView from './components/views/LandingView'
+import ChatWidget from './components/chat/ChatWidget'
 
 function App() {
   const context = useDiagnostic();
@@ -106,6 +107,8 @@ function App() {
           {renderView()}
         </main>
       </div>
+
+      <ChatWidget />
     </div>
   )
 }

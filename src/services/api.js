@@ -85,6 +85,13 @@ export const diagnosticService = {
   getReport: (reportId) => api.get(`/reports/${reportId}`),
   latestReport: () => api.get('/reports/latest'),
   downloadReportPdf: (reportId) => api.get(`/reports/${reportId}/download_pdf`, { responseType: 'blob' }),
+
+  // Chatbot
+  createConversation: () => api.post('/chatbot/conversations', { conversation: { status: 'active' } }),
+  getConversation: (id) => api.get(`/chatbot/conversations/${id}`),
+  getMessages: (conversationId) => api.get(`/chatbot/conversations/${conversationId}/messages`),
+  sendMessage: (conversationId, content) =>
+    api.post(`/chatbot/conversations/${conversationId}/messages`, { message: { content } }),
 };
 
 export default api;

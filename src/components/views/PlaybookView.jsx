@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { diagnosticService } from '../../services/api';
 
+
 // 1. COMPONENTE: TARJETAS DE SALUD COMERCIAL
 const HealthCard = ({ title, status, value, desc }) => {
   const statusColors = {
@@ -27,169 +28,13 @@ const HealthCard = ({ title, status, value, desc }) => {
         <div className="text-xl font-bold text-white tracking-tight">{value}</div>
         <p className="text-[10px] text-gray-500 leading-tight group-hover:text-gray-300 transition-colors">{desc}</p>
       </div>
+
+      <ChatWidget />
     </div>
+
+      <ChatWidget />
   );
-};
-
-// 2. COMPONENTE: MEDIDORES RADIALES
-const CircularGauge = ({ value, label, color, percentage }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div className="relative w-16 h-16">
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-        <path className="stroke-white/5 fill-none" strokeWidth="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-        <path className={`${color} fill-none transition-all duration-1000 ease-out`} strokeWidth="3" strokeDasharray={`${percentage}, 100`} strokeLinecap="round" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-mono">
-        <span className="text-[10px] font-bold text-white">{value}</span>
-      </div>
-    </div>
-    <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{label}</span>
-  </div>
-);
-
-// Mapa de scoring del backend a datos de salud comercial
-const buildHealthData = (diagnostic) => {
-  const outputs = diagnostic?.commercial_outputs || {};
-  const scoring = outputs.scoring_variables || [];
-  const scores = {};
-  scoring.forEach(s => { scores[s.variable] = s.score; });
-
-  const healthMap = {
-    "Oferta": () => ({
-      status: scores["Oferta"] <= 2 ? "critico" : scores["Oferta"] <= 3 ? "debil" : "fuerte",
-      value: scores["Oferta"] ? `${scores["Oferta"]}/5` : "N/A",
-      desc: scores["Oferta"] <= 2 ? "Oferta sin estructura clara" : scores["Oferta"] <= 3 ? "Oferta funcional pero mejorable" : "Oferta bien definida"
-    }),
-    "Seguimiento": () => ({
-      status: scores["Seguimiento"] <= 2 ? "critico" : scores["Seguimiento"] <= 3 ? "debil" : "fuerte",
-      value: scores["Seguimiento"] ? `${scores["Seguimiento"]}/5` : "N/A",
-      desc: scores["Seguimiento"] <= 2 ? "Sin CRM ni seguimiento" : scores["Seguimiento"] <= 3 ? "Seguimiento parcial" : "Seguimiento sistematizado"
-    }),
-    "CAC": () => ({
-      status: scores["CAC"] <= 2 ? "critico" : scores["CAC"] <= 3 ? "debil" : "fuerte",
-      value: scores["CAC"] ? `${scores["CAC"]}/5` : "N/A",
-      desc: scores["CAC"] <= 2 ? "CAC desconocido o alto" : scores["CAC"] <= 3 ? "CAC parcialmente medido" : "CAC controlado"
-    }),
-    "Conversión": () => ({
-      status: scores["Conversión"] <= 2 ? "critico" : scores["Conversión"] <= 3 ? "debil" : "fuerte",
-      value: outputs.diagnostico_general?.nivel_madurez_comercial || "N/A",
-      desc: scores["Conversión"] <= 2 ? "Fuga en el embudo" : scores["Conversión"] <= 3 ? "Conversión mejorable" : "Pipeline saludable"
-    }),
-    "ICP": () => ({
-      status: scores["ICP"] <= 2 ? "critico" : scores["ICP"] <= 3 ? "debil" : "fuerte",
-      value: scores["ICP"] ? `${scores["ICP"]}/5` : "N/A",
-      desc: scores["ICP"] <= 2 ? "Cliente no definido" : scores["ICP"] <= 3 ? "ICP parcial" : "ICP bien documentado"
-    }),
-    "Monetización": () => ({
-      status: scores["Ticket medio"] <= 2 ? "critico" : scores["Ticket medio"] <= 3 ? "debil" : "fuerte",
-      value: outputs.output_comercial_interno?.ticket_potencial || "N/A",
-      desc: "Ticket promedio analizado"
-    }),
-    "Retención": () => ({
-      status: scores["Recurrencia"] <= 2 ? "critico" : scores["Recurrencia"] <= 3 ? "debil" : "fuerte",
-      value: scores["Recurrencia"] ? `${scores["Recurrencia"]}/5` : "N/A",
-      desc: scores["Recurrencia"] >= 4 ? "Alta recurrencia" : scores["Recurrencia"] >= 3 ? "Recurrencia media" : "Baja recurrencia"
-    }),
-    "Referidos": () => ({
-      status: scores["Canal principal de adquisición"] <= 2 ? "critico" : "debil",
-      value: "0.2%",
-      desc: outputs.diagnostico_canal_adquisicion?.recomendacion || "Sin sistema viral"
-    }),
-    "Velocidad": () => ({
-      status: scores["Conversión"] <= 2 ? "critico" : "debil",
-      value: scores["Conversión"] ? `${scores["Conversión"]}/5` : "N/A",
-      desc: "Ciclo de venta por optimizar"
-    }),
-    "Cultura": () => ({
-      status: "fuerte",
-      value: "Óptima",
-      desc: "Equipo alineado"
-    }),
-    "Operaciones": () => ({
-      status: scores["Capacidad de ejecución"] <= 2 ? "critico" : scores["Capacidad de ejecución"] <= 3 ? "debil" : "fuerte",
-      value: outputs.plan_mejora?.length ? `${outputs.plan_mejora.length} acciones` : "N/A",
-      desc: outputs.plan_mejora?.[0]?.mejora_recomendada || "Automatización pendiente"
-    }),
-    "Escala": () => ({
-      status: scores["Escalamiento"] <= 2 ? "critico" : scores["Escalamiento"] <= 3 ? "debil" : "fuerte",
-      value: scores["Escalamiento"] ? `${scores["Escalamiento"]}/5` : "N/A",
-      desc: outputs.diagnostico_usuario?.nivel_madurez_comercial || "Escalamiento por definir"
-    }),
-  };
-
-  return Object.entries(healthMap).map(([key, fn]) => ({ title: key, ...fn() }));
-};
-
-// Mapa de fases del journey
-const buildJourneySteps = (outputs) => {
-  if (!outputs) return getDefaultJourneySteps();
-
-  const steps = [];
-  const cac = outputs.diagnostico_cac || {};
-  const channel = outputs.diagnostico_canal_adquisicion || {};
-  const valueEq = outputs.diagnostico_ecuacion_valor || {};
-  const journey = outputs.customer_journey || {};
-  const decision = outputs.decision_final || {};
-
-  if (cac.costo_actual_cac) steps.push({ phase: "Diagnóstico", title: "CAC Detectado", icon: <Search size={20}/>, color: "text-[#0FEFFD]", desc: `CAC: ${cac.costo_actual_cac}` });
-  if (channel.resumen) steps.push({ phase: "Diagnóstico", title: "Canal Analizado", icon: <Activity size={20}/>, color: "text-[#0FEFFD]", desc: channel.resumen });
-  if (valueEq.puntuacion_neta) steps.push({ phase: "Diagnóstico", title: "Ecuación de Valor", icon: <PieChart size={20}/>, color: "text-[#E625FF]", desc: `Puntuación: ${valueEq.puntuacion_neta}` });
-  if (decision.decision) steps.push({ phase: "Propulsión", title: "Decisión Estratégica", icon: <Rocket size={20}/>, color: "text-[#E625FF]", desc: decision.decision });
-  if (journey.pasos && journey.pasos.length > 0) steps.push({ phase: "Propulsión", title: "Journey Mapeado", icon: <Users size={20}/>, color: "text-[#E625FF]", desc: `${journey.pasos.length} pasos definidos` });
-  if (outputs.recomendacion_oferta_ribuzz?.oferta_recomendada) steps.push({ phase: "Expansión", title: "Oferta Recomendada", icon: <FileText size={20}/>, color: "text-[#E7B0EE]", desc: outputs.recomendacion_oferta_ribuzz.oferta_recomendada });
-  if (outputs.top_3_prioridades && outputs.top_3_prioridades.length > 0) steps.push({ phase: "Expansión", title: "Prioridades", icon: <TrendingUp size={20}/>, color: "text-[#E7B0EE]", desc: outputs.top_3_prioridades[0]?.accion || "" });
-  if (outputs.plan_mejora && outputs.plan_mejora.length > 0) steps.push({ phase: "Expansión", title: "Plan de Mejora", icon: <Zap size={20}/>, color: "text-[#E7B0EE]", desc: `${outputs.plan_mejora.length} acciones priorizadas` });
-  if (decision.siguiente_accion) steps.push({ phase: "Expansión", title: "Próximo Paso", icon: <Handshake size={20}/>, color: "text-[#0FEFFD]", desc: decision.siguiente_accion });
-
-  return steps.length > 0 ? steps : getDefaultJourneySteps();
-};
-
-const getDefaultJourneySteps = () => [
-  { phase: "Navegación", title: "Filtro Radar ICP", icon: <Search size={20}/>, color: "text-[#0FEFFD]", desc: "Validación de fit técnico." },
-  { phase: "Navegación", title: "Apertura de Valor", icon: <MessageSquare size={20}/>, color: "text-[#0FEFFD]", desc: "Ángulo de ayuda inicial." },
-  { phase: "Navegación", title: "Auditoría de Fugas", icon: <Activity size={20}/>, color: "text-[#0FEFFD]", desc: "Diagnóstico profundo." },
-  { phase: "Propulsión", title: "Prueba Concepto", icon: <Rocket size={20}/>, color: "text-[#E625FF]", desc: "Evidencia de resultados." },
-  { phase: "Propulsión", title: "Discovery Call", icon: <Users size={20}/>, color: "text-[#E625FF]", desc: "Co-creación de solución." },
-  { phase: "Propulsión", title: "Oferta Elite", icon: <FileText size={20}/>, color: "text-[#E625FF]", desc: "Presentación ROI." },
-  { phase: "Expansión", title: "Acoplamiento", icon: <Handshake size={20}/>, color: "text-[#E7B0EE]", desc: "Cierre y onboarding." },
-  { phase: "Expansión", title: "Vuelo de Éxito", icon: <TrendingUp size={20}/>, color: "text-[#E7B0EE]", desc: "Primera victoria." },
-  { phase: "Expansión", title: "Radar Referidos", icon: <Zap size={20}/>, color: "text-[#E7B0EE]", desc: "Loops de viralidad." },
-];
-
-const buildValueEquation = (outputs) => {
-  if (!outputs?.diagnostico_ecuacion_valor) return null;
-  const eq = outputs.diagnostico_ecuacion_valor;
-  return {
-    resultado: eq.resultado_sonado || "No definido",
-    certeza: eq.certeza || "Media",
-    tiempo: eq.tiempo_para_ver_frutos || "No estimado",
-    esfuerzo: eq.nivel_esfuerzo || "Medio",
-    puntuacionNeta: eq.puntuacion_neta || 0
-  };
-};
-
-export default function PlaybookView() {
-  const { currentDiagnostic, fetchPlaybookResults, setFormData, currentLead } = useDiagnostic();
-  const scrollRef = useRef(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleDownloadPdf = async () => {
-    try {
-      const res = await diagnosticService.latestReport();
-      const report = res.data?.data;
-      if (!report?.id) return;
-      const pdfRes = await diagnosticService.downloadReportPdf(report.id);
-      const url = URL.createObjectURL(new Blob([pdfRes.data], { type: 'application/pdf' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `audit_report_${report.id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Error downloading PDF:', err);
-    }
+}
   };
 
   const handleRefresh = async () => {
@@ -540,6 +385,7 @@ export default function PlaybookView() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
