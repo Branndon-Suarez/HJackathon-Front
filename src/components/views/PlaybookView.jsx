@@ -96,7 +96,7 @@ export default function PlaybookView() {
           <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none">
             Playbook <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E625FF] to-[#0FEFFD]">Estratégico</span>
           </h1>
-          <p className="text-gray-500 text-xs italic font-medium">Neomech Strategy Hub • Auditoría de Rendimiento</p>
+          <p className="text-gray-500 text-xs italic font-medium">Auditoría de Rendimiento</p>
         </div>
         <div className="flex gap-4">
           <button className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 text-white/70">
