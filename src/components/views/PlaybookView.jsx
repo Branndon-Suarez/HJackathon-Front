@@ -29,13 +29,14 @@ const HealthCard = ({ title, status, value, desc }) => {
         <p className="text-[10px] text-gray-500 leading-tight group-hover:text-gray-300 transition-colors">{desc}</p>
       </div>
 
-      <ChatWidget />
     </div>
-
-      <ChatWidget />
   );
-}
-  };
+};
+
+const PlaybookView = () => {
+  const { currentDiagnostic, setFormData, fetchPlaybookResults } = useDiagnostic();
+  const [refreshing, setRefreshing] = useState(false);
+  const scrollRef = useRef(null);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -44,6 +45,52 @@ const HealthCard = ({ title, status, value, desc }) => {
     }
     setRefreshing(false);
   };
+
+  const handleDownloadPdf = () => {
+    if (!currentDiagnostic) return;
+    window.print();
+  };
+
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const width = scrollRef.current.clientWidth || 720;
+    scrollRef.current.scrollBy({ left: direction === 'right' ? width * 0.8 : -width * 0.8, behavior: 'smooth' });
+  };
+
+  const buildHealthData = (diagnostic) => {
+    const outputs = diagnostic?.commercial_outputs || {};
+    return [
+      { title: 'Oferta', status: 'fuerte', value: outputs.oferta || 'Atractiva', desc: 'Mensaje claro y valor percibido' },
+      { title: 'Adquisición', status: 'debil', value: outputs.adquisicion || 'Medio', desc: 'Costo y eficiencia del canal' },
+      { title: 'Conversión', status: 'critico', value: outputs.conversion || '19%', desc: 'Tasa actual de cierre' },
+      { title: 'Retención', status: 'fuerte', value: outputs.retencion || '72%', desc: 'Clientes que repiten compra' },
+    ];
+  };
+
+  const buildJourneySteps = (outputs) => [
+    { phase: 'DESCUBRIR', title: 'Diagnóstico inicial', desc: outputs?.descubrimiento || 'Comprender el mercado y el cliente', color: 'text-[#E625FF]', icon: <Search size={20} /> },
+    { phase: 'ATRAER', title: 'Estrategia de tracción', desc: outputs?.traccion || 'Captar leads cualificados', color: 'text-[#0FEFFD]', icon: <Zap size={20} /> },
+    { phase: 'CONVERTIR', title: 'Mejorar el cierre', desc: outputs?.conversion || 'Optimizar puntos de contacto', color: 'text-[#E625FF]', icon: <ArrowRight size={20} /> },
+    { phase: 'ESCALAR', title: 'Operación rentable', desc: outputs?.escalamiento || 'Aumentar márgenes y volumen', color: 'text-[#0FEFFD]', icon: <TrendingUp size={20} /> },
+  ];
+
+  const buildValueEquation = (outputs) => ({
+    resultado: outputs?.resultado || 'Mayor impacto comercial',
+    certeza: outputs?.certeza || '80%',
+    tiempo: outputs?.tiempo || '30 días',
+    esfuerzo: outputs?.esfuerzo || 'Bajo',
+    puntuacionNeta: outputs?.puntuacion_neta || 85,
+  });
+
+  const CircularGauge = ({ value, label, color, percentage }) => (
+    <div className="bg-[#12131A] border border-white/5 rounded-[32px] p-6 text-center">
+      <div className={`mx-auto mb-4 w-24 h-24 rounded-full border-4 ${color} flex items-center justify-center text-white font-black text-lg`}>
+        {percentage}%
+      </div>
+      <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-2">{label}</p>
+      <p className="text-2xl font-black text-white">{value}</p>
+    </div>
+  );
 
   const diagnostic = currentDiagnostic;
   const outputs = diagnostic?.commercial_outputs || {};
@@ -389,3 +436,5 @@ const HealthCard = ({ title, status, value, desc }) => {
     </div>
   );
 }
+
+export default PlaybookView;
